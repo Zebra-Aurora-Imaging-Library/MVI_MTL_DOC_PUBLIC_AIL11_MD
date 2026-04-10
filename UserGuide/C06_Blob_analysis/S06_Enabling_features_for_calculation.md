@@ -1,0 +1,36 @@
+---
+doctype: UserGuide
+part: "2D processing and analysis"
+chapter: Blob_analysis
+section: Enabling_features_for_calculation
+module_tag: blob
+product: Aurora-Imaging-Library-user-guide
+version: 1100
+path: "UserGuide / 2D processing and analysis / blob / Enabling features for calculation"
+---
+
+# Enabling features for calculation
+
+The Aurora Imaging Library Blob Analysis module can calculate a variety of different blob measurements or features, such as the area, perimeter, Feret diameter, and center of gravity of each selected blob. Although the [`MblobCalculate`](../../Reference/blob/MblobCalculate.md) function initiates the actual calculations, it is the specified context that determines which calculations are performed.
+
+When you first allocate the context using [`MblobAlloc`](../../Reference/blob/MblobAlloc.md), a few features are enabled for calculation (for example, [`M_AREA`](../../Reference/blob/MblobGetResult.md)). You must use the [`MblobControl`](../../Reference/blob/MblobControl.md) function with your Blob Analysis context to enable additional feature calculations.
+
+[`MblobCalculate`](../../Reference/blob/MblobCalculate.md) can calculate both binary and grayscale blob features. To calculate a binary feature, [`MblobCalculate`](../../Reference/blob/MblobCalculate.md) requires only a blob identifier image. To calculate a grayscale feature, you must also pass [`MblobCalculate`](../../Reference/blob/MblobCalculate.md) a grayscale image. The blob identifier image will identify the blobs, and the grayscale image will supply the actual blob pixel values. Note that instead of passing the blob identifier image separately, you can pass [`MblobCalculate`](../../Reference/blob/MblobCalculate.md) a grayscale image buffer or 3D-processable depth map container with an ROI that acts as the blob identifier image.
+
+*[Image: boltbina-2.png]*
+
+When you call [`MblobCalculate`](../../Reference/blob/MblobCalculate.md), it scans the blob identifier image for blobs and then calculates the requested blob features. Even if only a few features are enabled for calculation, the overhead of scanning the image can be considerable. Therefore, it is usually more efficient to enable many features for calculation and make one call to [`MblobCalculate`](../../Reference/blob/MblobCalculate.md), rather than to enable and calculate one feature at a time. Note, features that have already been calculated for the specified images will not be recalculated if you call [`MblobCalculate`](../../Reference/blob/MblobCalculate.md) again, unless any parameters of the calculation are changed.
+
+There are several considerations when enabling features for calculation:
+
+- Before enabling a feature for calculation, you should take the blob shapes into consideration. Some feature calculations are more appropriate for certain blob shapes than for others. For example, some should be used for round blobs rather than long, thin ones, and vice versa.
+- When trying to distinguish between two similar blobs, enabling certain features for calculation, rather than some other features for calculation that might also seem appropriate, might reveal a more notable difference.
+- If two features allow you to come to the same conclusion, it is recommended that you enable the version that is calculated more quickly. For example, features derived from multiple Feret diameters tend to calculate relatively slowly, and grayscale calculations are considerably longer than binary ones.
+
+Note, for a visual representation of blobs that meet (or don't meet) certain criteria, you can use [`MblobDraw`](../../Reference/blob/MblobDraw.md) or [`MblobLabel`](../../Reference/blob/MblobLabel.md), after calculating some features and calling [`MblobSelect`](../../Reference/blob/MblobSelect.md). This can fill blobs with their own label values (using [`MblobLabel`](../../Reference/blob/MblobLabel.md)) or with a user-specified value (using [`MblobDraw`](../../Reference/blob/MblobDraw.md) with [`M_DRAW_BLOBS`](../../Reference/blob/MblobDraw.md) to fill the blobs with the value, or with [`M_DRAW_BLOBS_CONTOUR`](../../Reference/blob/MblobDraw.md) + [`M_DRAW_HOLES_CONTOUR`](../../Reference/blob/MblobDraw.md) to only fill the borders of the blobs with the value).
+
+You can also use [`MblobDraw`](../../Reference/blob/MblobDraw.md) to draw specific results in an image buffer or a 2D graphics list. For example, you can draw the blob's contours, holes, position, minimum and maximum Feret diameters, among other features. You can use a previously allocated 2D graphics context (see [2D graphics context](../C26_Generating_graphics/S03_Graphics_context.md)) to control the drawing color, or use the default 2D graphics context ([`M_DEFAULT`](../../Reference/blob/MblobDraw.md)). You can draw into any supported Aurora Imaging Library image buffer or a 2D graphics list. By drawing into a display's overlay buffer, or associating the 2D graphics list with the display, you can also annotate an image non-destructively. For more information, see [Annotating the displayed image non-destructively](../C25_Displaying_an_image/S08_Annotating_the_displayed_image_nondestructively.md).
+
+To get results, you can use [`MblobGetResult`](../../Reference/blob/MblobGetResult.md). To specify a specific blob to [`MblobGetResult`](../../Reference/blob/MblobGetResult.md), use the blob's label obtained from [`MblobGetLabel`](../../Reference/blob/MblobGetLabel.md), or the blob's index. The Blob Analysis module automatically calculates label values for included blobs when a call to [`MblobCalculate`](../../Reference/blob/MblobCalculate.md) is made. You can obtain the label value for a specific blob using [`MblobGetLabel`](../../Reference/blob/MblobGetLabel.md), with the blob's coordinate. If you exclude some blobs from [`MblobCalculate`](../../Reference/blob/MblobCalculate.md), the labels of the excluded blobs can still be returned until they are deleted; once deleted, the blob label returned will be 0. When blob's are excluded or deleted, the index value will however be reassigned; that is, the index of blobs with indices greater than that of the excluded/deleted blob are reduced by one. This ensures that included blobs have consecutive indices.
+
+The results obtained from [`MblobGetResult`](../../Reference/blob/MblobGetResult.md) can be sorted in ascending or descending order, by a maximum of three features assigned as sorting keys. To specify a feature as a sorting key, you can use [`MblobControl`](../../Reference/blob/MblobControl.md) with [`M_SORTn`](../../Reference/blob/MblobControl.md), and specify the feature as the sorting key. You can then choose whether the feature is sorted in ascending or descending order with [`M_SORTn_DIRECTION`](../../Reference/blob/MblobControl.md). Replace _n_ with 1, 2, or 3 to indicate the sorting precedence of the sorting key(s). The second and third sorting keys are only used to distinguish between blobs that have an identical value in the preceding key(s); therefore, a second or third sorting key is only used when the previous sorting key uses a discrete quantity value like [`M_NUMBER_OF_HOLES`](../../Reference/blob/MblobGetResult.md). Due to noise and discretization errors, positions and sizes of roughly identical objects might not give identical results.
