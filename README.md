@@ -1,11 +1,9 @@
 # DOC_PUBLIC_AIL11_MD
 
-Date: 14/04/2026
+Date: 12/05/2026
 
 **Aurora Imaging Library Version** 11.00
 
 **Description**  
-This repo contains the AIL 11 documentation as MD files. This can be used with AI tools to directly query the repo. For example, you can clone the repo and, using GitHub CoPilot with an Agent and a Claude model, you can ask, “Refer to DOC_PUBLIC_AIL11_MD and give me the steps to create an AIL application that will find a model and read a string. Also give the me the corresponding python code for this application.”
+This repo contains the AIL 11 documentation as MD files. This can be used with AI tools to directly query the repo. For more information, see [Getting Started: Aurora Imaging Library Documentation for AI](https://zebra-aurora-imaging-library.github.io/DOC_PUBLIC_AIL11_MD_HELP_SOURCE/GettingStartedWithDocumentationForAI.html).
 
-**Link**  
-[DOC_PUBLIC_AIL11_MD](https://zebra-aurora-imaging-library.github.io/DOC_PUBLIC_AIL11_MD_HELP_SOURCE/)
